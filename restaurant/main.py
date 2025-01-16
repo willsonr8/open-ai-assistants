@@ -14,24 +14,19 @@ def find_restaurants_near_me(keyword=None, min_price=1, max_price=4, name=None, 
 
 if __name__ == "__main__":
     # intake prompt or hardcoded options and parse into vars for find_restaurants_near_me
-    print(find_restaurants_near_me())
-
-    assistant = client.beta.assistants.create(
-    name="Restaurant Assistant",
-    instructions="""You are a personal assistant who's job it is to pick a restaurant that best aligns with the requirements
-    given tou you. Use the find_restaurants_near_me function to generate a list of restaurants nearby and determine which one is most suitable for your employer to eat at.""",
-    tools=[{
-        "type": "function", 
-        "function": {
-            "name": "find_restaurants_near_me", 
-            "description":"This function will return a list of restaurants near you."}}],
-    model="gpt-4o-mini",
+    user_prompt = "I want to eat spicy food but I do not like Indian food."
+    restaurants = find_restaurants_near_me()
+    prompt = f"You are a personal assistant and your user needs help finding a restaurant that fits within their budget and current preferences." \
+             f"Use the following list of local restaurants to help them find a place to eat. You will be graded on your performance and possibly" \
+            f"earn a raise if you do well. Here are the restaurants: {restaurants}. Here is more information from the user: {user_prompt}"
+    
+    response = client.chat.completions.create(
+        model="o1-mini",
+        messages=[
+            {"role": "user", "content": prompt},
+        ]
     )
+    print(response.choices[0].message.content)
 
-    thread = client.beta.threads.create()
-    message = client.beta.threads.messages.create(
-    thread_id=thread.id,
-    role="user",
-    content="Where can I get dinner tonight? I am in the mood for something spicy.",
-    )
+    
     
